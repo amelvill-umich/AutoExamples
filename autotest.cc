@@ -143,10 +143,43 @@ static void References()
 
 }
 
+static int AllocateCount = 0;
+struct ArrayDeallocateDetector
+{
+    const int MyNumber;
+    ArrayDeallocateDetector(void) : MyNumber(AllocateCount)
+    {
+        std::cout << "Array Detector " << MyNumber << " got allocated!" << std::endl;
+        AllocateCount++;
+    }
+    ~ArrayDeallocateDetector()
+    {
+        std::cout << "Array Detector " << MyNumber << " got deallocated!" << std::endl;
+    }
+};
+
 static auto AllocateStuff()
 {
-    // returns an int* to memory the client MUST FREE
-    return new int[20];
+    // returns an ArrayDeallocateDetector* to memory the client must free with delete[]
+    return new ArrayDeallocateDetector[5];
+}
+
+// this isn't really an "auto" problem per se, it's more of a shared_ptr mistake.
+static auto Bad_WrapAllocation()
+{
+    // I'm trying to modernize my code and I don't want to deal with int*s, let's wrap it in a smart pointer
+    // I'm pretty sure AllocateStuff returns a pointer right?
+
+    auto allocated = AllocateStuff();
+    
+    // neato, it compiles!
+    return std::shared_ptr<ArrayDeallocateDetector>{allocated};
+
+    // but... it doesn't. It's UB because shared_ptr can't deallocate int[], only int
+    // also you're now implying the type of what's returned from AllocateStuff
+    //
+    // This segfaults for me in GCC
+
 }
 
 static auto Dereference(int* somePtr)
@@ -332,8 +365,6 @@ int main()
     // error: incomplete type is not allowed.
 
     auto sometimes = ReturnsSometimes_AutoFunction(20);
-
-    
 
     return 0;
 }
