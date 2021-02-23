@@ -127,7 +127,7 @@ static void References()
 
     std::cout << "SomeGlobal before modifications is " << SomeGlobal << std::endl;
 
-    // is an int
+    // is an int, ReturnRef is declared as auto& but if you try and store it in an auto, it will resolve it to int
     auto notARef = ReturnRef();
     // SomeGlobal is *not* modified
     notARef = 33;
