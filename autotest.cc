@@ -204,6 +204,22 @@ static void Pointers()
     const auto* p2 = &someInteger;
     const auto* const p3 = &someInteger;
 
+    auto* const alsoSomeIntegerConstPtr = someIntegerConstPtr;
+
+    // this is a int* const *
+    // (pointer to const pointer to int)
+    auto* ptrToSomeIntegerConstPtr = &someIntegerConstPtr;
+
+    // so is this
+    auto alsoPtrToSomeIntegerConstPtr = &someIntegerConstPtr;
+
+    // I think there's a clearer way to express stuff like this. Not recommended.
+    // C pointer declarations are hard enough to read already, let's not add auto into it.
+    auto** test = &someIntegerPtr;
+
+    // error: unable to deduce ‘auto**’ from ‘someIntegerPtr’
+    //auto** test2 = someIntegerPtr;
+    int** test3 = &someIntegerPtr;
 
     //auto* p0 = someIntegerConstPtr;
     // error: conflicting declaration ‘auto* p0’
