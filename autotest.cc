@@ -2,6 +2,7 @@
 #include <iostream>
 #include <memory>
 #include <array>
+#include <vector>
 
 static void AutoAndLiterals(void)
 {
@@ -433,6 +434,36 @@ static void WithConcepts(void)
     int breakpoint = 0;
 }
 
+static void ReverseForLoop(void)
+{
+    // reverse for loop
+    std::vector<int> vect = {10,11,12,13};
+
+    // ok
+    for(int index = (vect.size() - 1); index >= 0; index--)
+    {
+        std::cout << vect[index] << ' ';
+    } 
+
+    std::cout << std::endl;
+
+    // ok
+    for(auto it = vect.crbegin(); it != vect.crend(); it++)
+    {
+        std::cout << *(it) << ' ';
+    }
+
+    std::cout << std::endl;
+
+    return;
+
+    // infinite loop/segfault/UB! index is an unsigned integer because size() is unsigned. index >= 0 is always true
+    for(auto index = (vect.size() - 1); index >= 0; index--)
+    {
+        std::cout << vect[index] << ' ';
+    } 
+}
+
 int main()
 {
     AutoAndLiterals();
@@ -451,6 +482,11 @@ int main()
     // error: incomplete type is not allowed.
 
     auto sometimes = ReturnsSometimes_AutoFunction(20);
+    ReverseForLoop();
+
+
+
+
 
     return 0;
 }
