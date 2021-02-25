@@ -439,7 +439,7 @@ static void ReverseForLoop(void)
     // reverse for loop
     std::vector<int> vect = {10,11,12,13};
 
-    // ok
+    // ok as long as the array size isn't too big to fit in an int
     for(int index = (vect.size() - 1); index >= 0; index--)
     {
         std::cout << vect[index] << ' ';
