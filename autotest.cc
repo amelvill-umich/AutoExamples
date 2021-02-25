@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <memory>
+#include <array>
 
 static void AutoAndLiterals(void)
 {
@@ -302,12 +303,12 @@ static void SmartPointers()
     std::cout << "End of SmartPointers()" << std::endl;
 }
 
-auto ReturnsInt()
+constexpr auto ReturnsInt()
 {
     return 8;
 }
 
-auto ReturnsDouble()
+constexpr auto ReturnsDouble()
 {
     return 1E99;
 }
@@ -364,6 +365,74 @@ static void WatchImpliedTypeRequirements(void)
     int breakpoint = 0;
 }
 
+// requires -fconcepts
+// note that this will return either an int or a double depending on what's passed in.
+static auto FullAuto(auto value)
+{
+    return value + 2;
+}
+
+
+constexpr static auto GetSize(auto value)
+{
+    return value + 2;
+}
+
+static int UseStaticInt(int value)
+{
+    return value * 2;
+}
+
+static double UseStaticDouble(double value)
+{
+    return value * 2;
+}
+
+
+static auto ImpliedDouble(auto value)
+{
+    auto result = value;
+    // do some calculations....
+
+    //...
+
+    // surely this is a double right?
+    result += 1E99;
+    return result;
+}
+
+
+static void WithConcepts(void)
+{
+    // returns 10
+    auto intResult = FullAuto(8);
+
+    // returns 10.4
+    auto doubleResult = FullAuto(8.4);
+
+    auto bigDoubleResult = FullAuto(1E99);
+
+    // compile error, it won't try and convert, which is good.
+    // std::array<int, ReturnsDouble()> someArray;
+    std::array<int, ReturnsInt()> array0;
+    std::array<int, GetSize(ReturnsInt())> array1;
+    // also does not compile
+    // std::array<int, GetSize(ReturnsDouble())> array2;
+
+    // Be careful with functions that take in / return a static value, these all run without any errors or warnings
+    int intTimesTwo = UseStaticInt(intResult);
+    double intConvertedToDouble = UseStaticDouble(intResult);
+    int undefinedBehavior1 = UseStaticInt(bigDoubleResult); // int overflow: don't do this
+    double doubleTimesTwo = UseStaticDouble(bigDoubleResult);
+
+    // auto functions can accidentally only work with one type
+    auto doublePlus1E99 = ImpliedDouble(1E99);
+    auto undefinedBehavior2 = ImpliedDouble(8); // int overflow: don't do this
+    auto undefinedBehavior3 = ImpliedDouble(2.0f); // float overflow: don't do this
+
+    int breakpoint = 0;
+}
+
 int main()
 {
     AutoAndLiterals();
@@ -372,6 +441,7 @@ int main()
     SmartPointers();
     StillPayAttentionToTypes();
     WatchImpliedTypeRequirements();
+    WithConcepts();
     // error: a value of type "void" cannot be used to initialize an entity of type "int"
     //int x = ReturnsNothing_AutoFunction();
     // error: cannot deduce auto type
